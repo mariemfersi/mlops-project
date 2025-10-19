@@ -1,0 +1,14 @@
+artifact_uri: mlflow-artifacts:/176352480965725069/0d322eefd2e8434bacda3b1a55f0f9c8/artifacts
+end_time: 1760893532700
+entry_point_name: ''
+experiment_id: '176352480965725069'
+lifecycle_stage: active
+run_id: 0d322eefd2e8434bacda3b1a55f0f9c8
+run_name: GradientBoosting
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1760893528509
+status: 3
+tags: []
+user_id: mariem

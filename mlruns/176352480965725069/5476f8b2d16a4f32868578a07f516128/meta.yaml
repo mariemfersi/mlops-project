@@ -1,0 +1,14 @@
+artifact_uri: mlflow-artifacts:/176352480965725069/5476f8b2d16a4f32868578a07f516128/artifacts
+end_time: 1760873002529
+entry_point_name: ''
+experiment_id: '176352480965725069'
+lifecycle_stage: active
+run_id: 5476f8b2d16a4f32868578a07f516128
+run_name: RandomForest
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1760872997109
+status: 3
+tags: []
+user_id: mariem
