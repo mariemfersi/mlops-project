@@ -25,19 +25,18 @@ pipeline {
         }
 
         stage('Setup Environment') {
-            steps {
-                sh '''
-                echo "⚙️ Setting up virtual environment..."
-                if [ ! -d "$VENV" ]; then
-                    python3 -m venv $VENV
-                fi
-                . $VENV/bin/activate
-                $PIP install --upgrade pip
-                $PIP install -r requirements.txt
-                echo "✅ Virtual environment ready."
-                '''
-            }
-        }
+    steps {
+        sh '''
+        echo "⚙️ Setting up virtual environment..."
+        python3 -m venv $VENV || { echo "❌ Failed to create venv. Check python3-venv installation"; exit 1; }
+        . $VENV/bin/activate
+        $PIP install --upgrade pip
+        $PIP install -r requirements.txt
+        echo "✅ Virtual environment ready."
+        '''
+    }
+}
+
 
         stage('Prepare Data') {
             steps {
