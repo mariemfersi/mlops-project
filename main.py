@@ -4,7 +4,9 @@ from model_pipeline import prepare_data, select_and_train_model, evaluate_model,
 
 def main(args):
     if args.prepare:
-        X_train, X_test, y_train, y_test = prepare_data(args.data_path, args.target)
+        X_train, X_test, y_train, y_test = prepare_data(
+            args.data_path, args.target
+        )
         print("Données préparées.")
 
     if args.train:
@@ -21,8 +23,9 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Pipeline ML pour insurance.csv")
-
+    parser = argparse.ArgumentParser(
+        description="Pipeline ML pour insurance.csv"
+    )
     parser.add_argument(
         "--prepare", action="store_true", help="Préparer les données"
     )
@@ -39,20 +42,19 @@ if __name__ == "__main__":
         "--data_path",
         type=str,
         default="insurance.csv",
-        help="Chemin vers le CSV"
+        help="Chemin vers le CSV",
     )
     parser.add_argument(
         "--target",
         type=str,
         default="charges",
-        help="Nom de la colonne cible"
+        help="Nom de la colonne cible",
     )
     parser.add_argument(
         "--model_path",
         type=str,
         default="model.pkl",
-        help="Chemin du modèle sauvegardé"
+        help="Chemin du modèle sauvegardé",
     )
-
     args = parser.parse_args()
     main(args)
