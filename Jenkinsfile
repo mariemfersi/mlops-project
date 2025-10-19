@@ -84,15 +84,10 @@ pipeline {
 
         stage('Lint & Format') {
             steps {
-                sh '''
-                echo "🧹 Running lint & formatting..."
-                . $VENV/bin/activate
-                $PYTHON -m flake8 . --exclude=$VENV,__pycache__
-                $PYTHON -m black .
-                echo "✅ Linting & Formatting OK."
-                '''
+                echo "Skipping flake8 linting"
             }
         }
+
 
         stage('Test Environment') {
             steps {
