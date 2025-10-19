@@ -18,24 +18,20 @@ def prepare_data(data_path: str, target: str, test_size=0.2, random_state=42):
     X = df.drop(columns=[target])
     y = df[target]
 
-    # One-hot encoding
     X = pd.get_dummies(X, drop_first=True)
 
-    # Standardisation
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     scaler.feature_columns = X.columns.tolist()
 
-    # Split train/test
     X_train, X_test, y_train, y_test = train_test_split(
         X_scaled, y, test_size=test_size, random_state=random_state
     )
     return X_train, X_test, y_train, y_test
 
 
-def select_and_train_model(
-    X_train, y_train, model_type=None, params_dict=None, tags_dict=None
-):
+def select_and_train_model(X_train, y_train, model_type=None, params_dict=None, tags_dict=None):
+
     models = {
         "LinearRegression": LinearRegression(),
         "RandomForest": RandomForestRegressor(random_state=42),
@@ -49,7 +45,9 @@ def select_and_train_model(
 
     if model_type:
         if model_type not in models:
-            raise ValueError(f"Invalid model_type. Choose from {list(models.keys())}")
+            raise ValueError(
+                f"Invalid model_type. Choose from {list(models.keys())}"
+            )
         model = models[model_type]
 
         with mlflow.start_run(run_name=model_type):
@@ -70,7 +68,6 @@ def select_and_train_model(
             mlflow.log_metric("train_rmse", rmse)
             mlflow.log_metric("train_mae", mae)
             mlflow.log_metric("train_r2", r2)
-
             mlflow.sklearn.log_model(model, "model")
 
             print(
@@ -80,17 +77,16 @@ def select_and_train_model(
 
         return model
 
-    # Auto model selection
-    grid_params = {
+    params_grid = {
         "RandomForest": {"n_estimators": [50, 100], "max_depth": [5, 10, None]},
         "GradientBoosting": {"n_estimators": [50, 100], "learning_rate": [0.01, 0.1]},
     }
 
     for name, model in models.items():
         with mlflow.start_run(run_name=name):
-            if name in grid_params:
+            if name in params_grid:
                 grid = GridSearchCV(
-                    model, grid_params[name], cv=3, scoring="neg_mean_squared_error"
+                    model, params_grid[name], cv=3, scoring="neg_mean_squared_error"
                 )
                 grid.fit(X_train, y_train)
                 model = grid.best_estimator_
