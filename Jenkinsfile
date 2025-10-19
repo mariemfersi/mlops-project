@@ -13,19 +13,25 @@ pipeline {
     }
 
     stages {
+
         stage('Check Python') {
-    steps {
-        sh 'which python3 || echo "Python not found"'
-        sh 'python3 --version'
-    }
-}
+            steps {
+                sh '''
+                echo "🐍 Checking Python installation..."
+                which python3 || echo "Python not found"
+                python3 --version
+                '''
+            }
+        }
 
         stage('Setup Environment') {
             steps {
                 sh '''
+                echo "⚙️ Setting up virtual environment..."
                 if [ ! -d "$VENV" ]; then
                     python3 -m venv $VENV
                 fi
+                . $VENV/bin/activate
                 $PIP install --upgrade pip
                 $PIP install -r requirements.txt
                 echo "✅ Virtual environment ready."
@@ -36,6 +42,8 @@ pipeline {
         stage('Prepare Data') {
             steps {
                 sh '''
+                echo "📦 Preparing data..."
+                . $VENV/bin/activate
                 $PYTHON main.py --prepare --data_path $DATA_PATH --target $TARGET
                 echo "✅ Données préparées."
                 '''
@@ -45,6 +53,8 @@ pipeline {
         stage('Train Model') {
             steps {
                 sh '''
+                echo "🤖 Training model..."
+                . $VENV/bin/activate
                 $PYTHON main.py --train --prepare --data_path $DATA_PATH --target $TARGET
                 echo "✅ Modèle entraîné."
                 '''
@@ -54,6 +64,8 @@ pipeline {
         stage('Evaluate Model') {
             steps {
                 sh '''
+                echo "🧮 Evaluating model..."
+                . $VENV/bin/activate
                 $PYTHON main.py --evaluate --prepare --train --data_path $DATA_PATH --target $TARGET
                 echo "✅ Évaluation terminée."
                 '''
@@ -63,6 +75,8 @@ pipeline {
         stage('Save Model') {
             steps {
                 sh '''
+                echo "💾 Saving model..."
+                . $VENV/bin/activate
                 $PYTHON main.py --save --prepare --train --data_path $DATA_PATH --target $TARGET --model_path $MODEL_PATH
                 echo "✅ Modèle sauvegardé dans $MODEL_PATH."
                 '''
@@ -72,6 +86,8 @@ pipeline {
         stage('Lint & Format') {
             steps {
                 sh '''
+                echo "🧹 Running lint & formatting..."
+                . $VENV/bin/activate
                 $PYTHON -m flake8 . --exclude=$VENV,__pycache__
                 $PYTHON -m black .
                 echo "✅ Linting & Formatting OK."
@@ -82,6 +98,8 @@ pipeline {
         stage('Test Environment') {
             steps {
                 sh '''
+                echo "🧪 Running environment tests..."
+                . $VENV/bin/activate
                 $PYTHON test_environment.py
                 echo "✅ Tests exécutés."
                 '''
@@ -98,10 +116,10 @@ pipeline {
         }
         cleanup {
             sh '''
+            echo "🧹 Nettoyage en cours..."
             rm -rf __pycache__ *.pyc *.pyo *.png
-            echo "🧹 Nettoyage terminé."
+            echo "✅ Nettoyage terminé."
             '''
         }
     }
 }
-
