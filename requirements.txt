@@ -9,4 +9,4 @@ uvicorn
 joblib
 flake8
 black
- 
+seaborn
