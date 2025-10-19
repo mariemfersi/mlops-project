@@ -1,29 +1,30 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import pandas as pd
-import numpy as np
-from model_pipeline import load_model, save_model
+from model_pipeline import load_model, save_model, prepare_data, select_and_train_model
 
 app = FastAPI(title="Insurance Charges Predictor")
 
-# Charger le modèle et scaler au démarrage
+# Load model and scaler at startup
 model, scaler = load_model("model.pkl")
 
-# ----- Classes -----
+
 class InputData(BaseModel):
     features: list
+
 
 class RetrainData(BaseModel):
     data_path: str
     target: str
     model_type: str = None
 
-# ----- Routes -----
+
 @app.get("/columns")
 def get_columns():
     if scaler is None or not hasattr(scaler, "feature_columns"):
         return {"error": "Le scaler n'a pas encore été initialisé."}
     return {"feature_columns": scaler.feature_columns}
+
 
 @app.post("/predict")
 def predict(data: InputData):
@@ -35,40 +36,34 @@ def predict(data: InputData):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @app.post("/retrain")
 def retrain(data: RetrainData):
     global model, scaler
     try:
-        from model_pipeline import prepare_data, select_and_train_model, save_model, load_model
+        X_train, X_test, y_train, y_test = prepare_data(
+            data.data_path, data.target
+        )
 
-        # Préparer les données
-        X_train, X_test, y_train, y_test = prepare_data(data.data_path, data.target)
-
-        # Définir des paramètres et tags par défaut
-        params_dict = {"n_estimators": 100, "max_depth": 10}  # pour RandomForest ou GradientBoosting
+        params_dict = {"n_estimators": 100, "max_depth": 10}
         tags_dict = {"author": "Mariem", "version": "v1.0"}
 
-        # Entraîner le modèle
         if data.model_type:
             model = select_and_train_model(
-                X_train, y_train,
+                X_train,
+                y_train,
                 model_type=data.model_type,
                 params_dict=params_dict,
-                tags_dict=tags_dict
+                tags_dict=tags_dict,
             )
         else:
             model = select_and_train_model(
-                X_train, y_train,
-                params_dict=params_dict,
-                tags_dict=tags_dict
+                X_train, y_train, params_dict=params_dict, tags_dict=tags_dict
             )
 
-        # Sauvegarder le modèle et scaler
         save_model(model, "model.pkl")
-        _, scaler = load_model("model.pkl")  # Recharger scaler pour les prédictions futures
+        _, scaler = load_model("model.pkl")
 
         return {"message": f"Model retrained successfully with type: {type(model).__name__}"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
-
