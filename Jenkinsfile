@@ -13,6 +13,12 @@ pipeline {
     }
 
     stages {
+        stage('Check Python') {
+    steps {
+        sh 'which python3 || echo "Python not found"'
+        sh 'python3 --version'
+    }
+}
 
         stage('Setup Environment') {
             steps {
