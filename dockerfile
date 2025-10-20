@@ -1,31 +1,25 @@
+# Utiliser une image de base Python
+FROM python:3.12-slim
 
-FROM python:3.10-slim
+# Variables d'environnement
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
 
-# Empêche Python de créer des fichiers .pyc et active un buffering standard
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
+# Définir le répertoire de travail
 WORKDIR /app
 
+# Copier les fichiers du projet
+COPY . /app
 
-COPY requirements.txt .
+# Installer les dépendances
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-COPY . .
+# Exposer le port de l'API et MLflow UI
+EXPOSE 8000 5000
 
 
 
-# 8000 : FastAPI
-# 5000 : MLflow
-EXPOSE 8000
-EXPOSE 5000
 
 
 # Démarre FastAPI et MLflow simultanément via un script shell
